@@ -94,7 +94,7 @@ resource "aws_kinesis_stream" "event_stream" {
 
 resource "aws_lambda_function" "terraform_function" {
   filename         = "lambda_function.zip"
-  function_name    = "pythonFunction2"
+  function_name    = "pythonFunction"
   handler          = "index.handler"
   role             = "${aws_iam_role.terraform_function_role.arn}"
   runtime          = "python3.10"
