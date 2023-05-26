@@ -34,12 +34,13 @@ resource "aws_instance" "app_server" {
 }
 
 output "my_bucket_name" {
-  value = "${data.aws_s3_bucket.mybucket.bucket}"
+  value = data.aws_s3_bucket.mybucket.bucket
 }
 
 resource "aws_s3_bucket" "lambda_bucket" {
-  bucket = "my-first-bucket-ihor2"  
+  bucket = "my-first-bucket-ihor2"
 }
+
 resource "aws_iam_policy" "s3_policy" {
   name        = "s3_policy"
   description = "Policy for S3 access"
@@ -75,13 +76,14 @@ data "aws_iam_policy_document" "AWSLambdaTrustPolicy" {
 
 resource "aws_iam_role" "terraform_function_role" {
   name               = "terraform_function_role"
-  assume_role_policy = "${data.aws_iam_policy_document.AWSLambdaTrustPolicy.json}"
+  assume_role_policy = data.aws_iam_policy_document.AWSLambdaTrustPolicy.json
 }
 
 resource "aws_iam_role_policy_attachment" "terraform_lambda_policy" {
-  role       = "${aws_iam_role.terraform_function_role.name}"
+  role       = aws_iam_role.terraform_function_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
+
 resource "aws_kinesis_stream" "event_stream" {
   name             = "event_stream"
   shard_count      = 1
@@ -93,11 +95,11 @@ resource "aws_kinesis_stream" "event_stream" {
 }
 
 resource "aws_lambda_function" "terraform_function" {
-  filename         = "lambda_function.zip"
-  function_name    = "pythonFunction"
-  handler          = "index.handler"
-  role             = "${aws_iam_role.terraform_function_role.arn}"
-  runtime          = "python3.10"
+  filename      = "lambda_function.zip"
+  function_name = "pythonFunction1"
+  handler       = "index.handler"
+  role          = aws_iam_role.terraform_function_role.arn
+  runtime       = "python3.10"
   timeout       = 10
 
   environment {
@@ -106,6 +108,9 @@ resource "aws_lambda_function" "terraform_function" {
     }
   }
 }
-data "aws_lambda_function" "http_function" {
-  function_name = "pythonFunction"
+
+resource "aws_lambda_event_source_mapping" "kinesis_mapping" {
+  event_source_arn = aws_kinesis_stream.event_stream.arn
+  function_name    = aws_lambda_function.terraform_function.arn
+  starting_position = "LATEST"
 }
