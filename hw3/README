@@ -1,0 +1,8 @@
+## Steps
+To run the hw3 use the next command:
+
+1. Clone the Git repository: Clone the repository containing the Terraform configuration to your local machine.
+2. Install Terraform
+3. Initialize the working directory: Open a terminal or command prompt, navigate to the cloned repository directory, and run the command ```terraform init```
+4. Configure AWS credentials
+5. Apply the infrastructure changes: If the plan looks correct, execute the command ```terraform apply``` to apply the changes
