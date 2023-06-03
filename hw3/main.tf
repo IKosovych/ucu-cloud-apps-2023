@@ -51,11 +51,13 @@ resource "aws_iam_policy" "s3_policy" {
     {
       "Effect": "Allow",
       "Action": [
-        "s3:PutObject"
+        "s3:PutObject",
+        "dynamodb:PutItem"
       ],
       "Resource": [
         "arn:aws:s3:::my-first-bucket-ihor2",
-        "arn:aws:s3:::my-first-bucket-ihor2/*"
+        "arn:aws:s3:::my-first-bucket-ihor2/*",
+        "arn:aws:dynamodb:us-west-2:646632584624:table/my-table"
       ]
     }
   ]
@@ -129,4 +131,14 @@ resource "aws_lambda_function" "http_function" {
     }
   }
 
+}
+
+resource "aws_dynamodb_table" "my_table" {
+  name           = "my-table"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "id"
+  attribute {
+    name = "id"
+    type = "S"
+  }
 }
