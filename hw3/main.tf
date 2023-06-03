@@ -129,6 +129,12 @@ resource "aws_lambda_function" "http_function" {
     variables = {
       EVENT_STREAM_NAME = aws_kinesis_stream.event_stream.name
     }
+    kms_key_id = "arn:aws:lambda:us-west-2:646632584624:function:pythonFunction"
+  }
+  reserved_concurrent_executions = 10
+
+  tracing_config {
+    mode = "active"
   }
 
 }
