@@ -4,6 +4,8 @@ import boto3
 
 def lambda_handler(event, context):
     try:
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table('my-table')
         print(event)
         headers = event['headers']
         request_id = headers.get('request-id')
@@ -16,17 +18,14 @@ def lambda_handler(event, context):
 
         response = {
             'request-id': request_id,
-            'message': 'Hello, world1!'
+            'message': 'Hello, world3!'
         }
-        s3 = boto3.client('s3')
-        bucket_name = 'my-first-bucket-ihor2'
-        file_key = f'{request_id}.json'
-
         try:
-            s3.put_object(
-                Body=json.dumps(response),
-                Bucket=bucket_name,
-                Key=file_key
+            table.put_item(
+                Item={
+                    'id': request_id,
+                    'message': 'Hello, world3!'
+                }
             )
         except Exception as e:
             print(e)
