@@ -51,11 +51,13 @@ resource "aws_iam_policy" "s3_policy" {
     {
       "Effect": "Allow",
       "Action": [
-        "s3:PutObject"
+        "s3:PutObject",
+        "dynamodb:PutItem"
       ],
       "Resource": [
         "arn:aws:s3:::my-first-bucket-ihor2",
-        "arn:aws:s3:::my-first-bucket-ihor2/*"
+        "arn:aws:s3:::my-first-bucket-ihor2/*",
+        "arn:aws:dynamodb:us-west-2:646632584624:table/my-table"
       ]
     }
   ]
@@ -115,7 +117,7 @@ resource "aws_lambda_event_source_mapping" "kinesis_mapping" {
   starting_position = "LATEST"
 }
 
-resource "aws_lambda_function" "http_function" {
+resource "aws_lambda_function" "s3_function" {
   filename      = "lambda_function.zip"
   function_name = "pythonFunction2"  # Unique name for the new Lambda function
   handler       = "index.handler"
@@ -128,5 +130,29 @@ resource "aws_lambda_function" "http_function" {
       EVENT_STREAM_NAME = aws_kinesis_stream.event_stream.name
     }
   }
+}
 
+resource "aws_lambda_function" "database_function" {
+  filename      = "lambda_function.zip"
+  function_name = "pythonFunction3"
+  handler       = "index.handler"
+  role          = aws_iam_role.terraform_function_role.arn
+  runtime       = "python3.10"
+  timeout       = 10
+
+  environment {
+    variables = {
+      EVENT_STREAM_NAME = aws_kinesis_stream.event_stream.name
+    }
+  }
+}
+
+resource "aws_dynamodb_table" "my_table" {
+  name           = "my-table"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "id"
+  attribute {
+    name = "id"
+    type = "S"
+  }
 }
